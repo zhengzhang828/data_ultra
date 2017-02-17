@@ -1,4 +1,4 @@
-import sys
+﻿import sys
 from keras.models import Model
 from keras.layers import Input, merge, Convolution2D, MaxPooling2D, UpSampling2D, Dense
 from keras.layers import BatchNormalization, Dropout, Flatten, Lambda
@@ -6,6 +6,8 @@ from keras.layers.advanced_activations import ELU, LeakyReLU
 from metric import dice_coef, dice_coef_loss
 
 IMG_ROWS, IMG_COLS = 80, 112
+
+#github commit change testing
 
 def inception_block(inputs, depth, batch_mode=0, splitted=False, activation='relu'):
     assert depth % 16 == 0
