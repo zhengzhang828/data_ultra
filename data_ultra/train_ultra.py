@@ -168,6 +168,7 @@ class Learner(object):
 #                y_train.append(_y.reshape((1,) + _y.shape))
             
             #flip x
+            #small changes
             x_train.append(flip_axis(x, 2))
             y_train.append(flip_axis(y, 2))
             #flip y

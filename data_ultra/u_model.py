@@ -20,6 +20,7 @@ def _shortcut(_input, residual):
 IMG_ROWS, IMG_COLS = 80, 112 
 
 #github text
+#github change 2
 
 #conv1 = inception_block(inputs, 32, batch_mode=2, splitted=splitted, activation=act)
 def inception_block(inputs, depth, batch_mode=0, splitted=False, activation='relu'):
