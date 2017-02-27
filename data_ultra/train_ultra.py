@@ -24,23 +24,58 @@ def preprocess(imgs, to_rows=None, to_cols=None):
         imgs_p[i, 0] = cv2.resize(imgs[i, 0], (to_cols, to_rows), interpolation=cv2.INTER_CUBIC)
     return imgs_p
 
-
 class Learner(object):
-    
+
     suffix = ''
-    res_dir = os.path.join(_dir, 'res' + suffix)
-    best_weight_path = os.path.join(res_dir, 'unet.hdf5')
-    test_mask_res = os.path.join(res_dir, 'imgs_mask_test.npy')
-    test_mask_exist_res = os.path.join(res_dir, 'imgs_mask_exist_test.npy')
-    meanstd_path = os.path.join(res_dir, 'meanstd.dump')
-    valid_data_path = os.path.join(res_dir, 'valid.npy')
+    res_dir = os.path.join(_dir, 'res_p' + suffix)
+    best_weight_path = os.path.join(res_dir, 'unet_p.hdf5')
+    test_mask_res = os.path.join(res_dir, 'imgs_mask_test_p.npy')
+    test_mask_exist_res = os.path.join(res_dir, 'meanstd.dump')
+    validate_data_path = os.path.join(res_dir, 'valid.npy')
     tensorboard_dir = os.path.join(res_dir, 'tb')
-    
+
     def __init__(self, model_func, validation_split):
+        
         self.model_func = model_func
         self.validation_split = validation_split
         self.__iter_res_dir = os.path.join(self.res_dir, 'res_iter')
         self.__iter_res_file = os.path.join(self.__iter_res_dir, '{epoch:02d}-{val_loss:.4f}.unet.hdf5')
+
+    def _dir_init(self):
+        #Initialize the result folder, if doesn't exist, create res_dir folder
+        if not os.path.exists(self.res_dir):
+            os.mkdir(self.res_dir)
+        #check existence of iter weight files folder
+        if os.path.exists(self.__iter_res_dir):
+            shutil.rmtree(self.__iter_res_dir)
+        os.mkdir(self.__iter_res_dir)
+
+    def norm_mask(cls, mask_array):
+        mask_array = mask_array.astype('float32')
+        mask_array /= 255.0
+        return mask_array
+
+    def train_and_predict(self, pretrained_path=None, split_random=True):
+        #check folder if not exist create folder
+        self._dir_init() 
+
+        print('Loading and preprocessing and standarize train data...')
+        imgs_train, imgs_mask_train = load_train_data()
+        print('imgs_train: load_train_data', imgs_train)
+        print('imgs_mask_train: load_train_data', imgs_mask_train)
+
+        imgs_train = preprocess(imgs_mask_train)
+        print('imgs_train: preprocess', imgs_train)
+        
+        imgs_mask_train = self.norm_mask(imgs_mask_train)
+        print('imgs_mask_train: norm_mask', imgs_mask_train)
+        
+
+
+
+    
+"""
+class Learner(object):
         
     def _dir_init(self):
         if not os.path.exists(self.res_dir):
@@ -245,7 +280,7 @@ class Learner(object):
         model = self.fit(x_train, y_train, x_valid, y_valid, pretrained_path)
         #test
         self.test(model)
-
+"""
 
 def main():
     parser = OptionParser()
