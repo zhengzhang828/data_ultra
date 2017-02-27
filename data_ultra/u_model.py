@@ -4,6 +4,9 @@ from keras.layers import Input, merge, Convolution2D, MaxPooling2D, UpSampling2D
 from keras.layers import BatchNormalization, Dropout, Flatten, Lambda
 from keras.layers.advanced_activations import ELU, LeakyReLU
 from metric import dice_coef, dice_coef_loss
+
+IMG_ROWS, IMG_COLS = 80, 112 
+
 def _shortcut(_input, residual):
     stride_width = _input._keras_shape[2] / residual._keras_shape[2]
     stride_height = _input._keras_shape[3] / residual._keras_shape[3]
@@ -17,12 +20,8 @@ def _shortcut(_input, residual):
                                  init="he_normal", border_mode="valid")(_input)
 
     return merge([shortcut, residual], mode="sum")
-IMG_ROWS, IMG_COLS = 80, 112 
 
-#github text
-#github change 2
 
-#conv1 = inception_block(inputs, 32, batch_mode=2, splitted=splitted, activation=act)
 def inception_block(inputs, depth, batch_mode=0, splitted=False, activation='relu'):
     assert depth % 16 == 0
     actv = activation == 'relu' and (lambda: LeakyReLU(0.0)) or activation == 'elu' and (lambda: ELU(1.0)) or None
@@ -178,13 +177,10 @@ def get_unet_inception_2head(optimizer):
     #print conv10._keras_shape
 
     model = Model(input=inputs, output=[conv10, aux_out])
-    
-    """
     model.compile(optimizer=optimizer,
                   loss={'main_output': dice_coef_loss, 'aux_output': 'binary_crossentropy'},
                   metrics={'main_output': dice_coef, 'aux_output': 'acc'},
                   loss_weights={'main_output': 1., 'aux_output': 0.5})
-    """
 
     return model
 
@@ -200,14 +196,8 @@ def main():
     
     optimizer = RMSprop(lr=0.045, rho=0.9, epsilon=1.0)
     model = get_unet(Adam(lr=1e-5))
-
     model.compile(optimizer=optimizer, loss=dice_coef_loss, metrics=[dice_coef])
-    #---
-    from keras.utils.visualize_util import plot
-    plot(model, to_file='model.png')
-    #---
-
-    """
+    
     x = np.random.random((1, 1,img_rows,img_cols))
     res = model.predict(x, 1)
     print res
@@ -215,7 +205,7 @@ def main():
     print 'params', model.count_params()
     print 'layer num', len(model.layers)
     #
-    """
+
 
 if __name__ == '__main__':
     sys.exit(main())

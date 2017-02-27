@@ -1,4 +1,4 @@
-﻿from __future__ import print_function
+from __future__ import print_function
 from optparse import OptionParser
 import cv2, sys, os, shutil, random
 import numpy as np

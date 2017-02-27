@@ -33,6 +33,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="optparse_ex.py" />
+    <Compile Include="train.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="train_ultra.py">
       <SubType>Code</SubType>
     </Compile>
