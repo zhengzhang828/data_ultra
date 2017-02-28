@@ -33,6 +33,7 @@ class Learner(object):
     test_mask_exist_res = os.path.join(res_dir, 'meanstd.dump')
     validate_data_path = os.path.join(res_dir, 'valid.npy')
     tensorboard_dir = os.path.join(res_dir, 'tb')
+    img_sample = os.path.join(_dir, 'IMGsample')
 
     def __init__(self, model_func, validation_split):
         
@@ -61,14 +62,18 @@ class Learner(object):
 
         print('Loading and preprocessing and standarize train data...')
         imgs_train, imgs_mask_train = load_train_data()
-        print('imgs_train: load_train_data', imgs_train)
-        print('imgs_mask_train: load_train_data', imgs_mask_train)
-
+        #imgs_train size: (120, 1, 420, 580)
+        #imgs_mask_train size: (120, 1, 420, 580)
+        print ('imgs_train one image: ',imgs_train[0].shape)
+        print ('img_sample', self.img_sample)
+        cv2.imwrite(os.path.join(self.img_sample, 'imgs_train_1.jpg'), imgs_train[0])
+        print ('img file saved')
         imgs_train = preprocess(imgs_mask_train)
-        print('imgs_train: preprocess', imgs_train)
+        #imgs_train preprocess size: (120, 1, 80, 112)
         
         imgs_mask_train = self.norm_mask(imgs_mask_train)
-        print('imgs_mask_train: norm_mask', imgs_mask_train)
+        #imgs_mask_train norm_mask size: (120, 1, 420, 580)
+       
         
 
 
