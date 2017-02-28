@@ -64,9 +64,12 @@ class Learner(object):
         imgs_train, imgs_mask_train = load_train_data()
         #imgs_train size: (120, 1, 420, 580)
         #imgs_mask_train size: (120, 1, 420, 580)
-        print ('imgs_train one image: ',imgs_train[0].shape)
+        CV_IMWRITE_WEBP_QUALITY = 100
+        print ('imgs_train one image: ', imgs_train[0][0])
+        print ('imgs_train one image shape: ',imgs_train[0].shape, CV_IMWRITE_WEBP_QUALITY)
         print ('img_sample', self.img_sample)
         cv2.imwrite(os.path.join(self.img_sample, 'imgs_train_1.jpg'), imgs_train[0])
+
         print ('img file saved')
         imgs_train = preprocess(imgs_mask_train)
         #imgs_train preprocess size: (120, 1, 80, 112)
