@@ -54,7 +54,6 @@ def get_patient_nums(string):
 def create_train_data():
     train_data_path = os.path.join(data_path, 'train')
     images = filter((lambda image: 'mask' not in image), os.listdir(train_data_path))
-    
     total = len(images) #5653 images train data
 
     imgs = np.ndarray((total, 1, image_rows, image_cols), dtype=np.uint8) #(5635, 1, 420, 580)
@@ -70,33 +69,29 @@ def create_train_data():
             continue
 
         #only pick the first patient data, there are 47 patients
-        if image_name.startswith('1_'):
-            print ('image_name start with 1: ',image_name)
+        
 
-            image_mask_name = image_name.split('.')[0] + '_mask.tif'
-            patient_num = image_name.split('_')[0]
-            print('patient_num: ', patient_num)
+        image_mask_name = image_name.split('.')[0] + '_mask.tif'
+        patient_num = image_name.split('_')[0]
+        #print('patient_num: ', patient_num)
 
-            patientsmax.append(int(patient_num))
-            img = cv2.imread(os.path.join(train_data_path, image_name), cv2.IMREAD_GRAYSCALE)
+        patientsmax.append(int(patient_num))
+        img = cv2.imread(os.path.join(train_data_path, image_name), cv2.IMREAD_GRAYSCALE)
             
-            img_mask = cv2.imread(os.path.join(train_data_path, image_mask_name), cv2.IMREAD_GRAYSCALE)
+        img_mask = cv2.imread(os.path.join(train_data_path, image_mask_name), cv2.IMREAD_GRAYSCALE)
 
-            imgs[i, 0] = img               #original images
-            imgs_mask[i, 0] = img_mask     #mask images
-            img_patients[i] = patient_num  #patient number
+        imgs[i, 0] = img               #original images
+        imgs_mask[i, 0] = img_mask     #mask images
+        img_patients[i] = patient_num  #patient number
 
-            if i % 100 == 0:
-                print('Done: {0}/{1} images'.format(i, total))
-            i += 1
-
-    #print('patients number: ', patientsmax)
-    #print('max patient nubmer: ', max(patientsmax))
-    print('number of data: ', len(patientsmax))
+        if i % 100 == 0:
+            print('Done: {0}/{1} images'.format(i, total))
+        i += 1
+    
     print('Loading done.')
-    np.save(img_train_patients,img_patients)
-    np.save(img_train_path, imgs)
-    np.save(img_train_mask_path, imgs_mask)
+    #np.save(img_train_patients,img_patients)
+    #np.save(img_train_path, imgs)
+    #np.save(img_train_mask_path, imgs_mask)
     print('Saving to .npy files done.')
 
 def create_test_data():
