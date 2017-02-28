@@ -12,11 +12,11 @@ data_path = os.path.join(_dir, '')
 
 #create folder for the train and test files
 preprocess_path = os.path.join(_dir, 'np_data_p')
-if os.path.exists(preprocess_path):
-    shutil.rmtree(preprocess_path)
-    os.mkdir(preprocess_path)
-else:
-    os.mkdir(preprocess_path)
+#if os.path.exists(preprocess_path):
+#    shutil.rmtree(preprocess_path)
+#    os.mkdir(preprocess_path)
+#else:
+#    os.mkdir(preprocess_path)
 
 img_train_path = os.path.join(preprocess_path, 'imgs_train.npy')
 print('img_train_path: ', img_train_path)
@@ -89,9 +89,9 @@ def create_train_data():
         i += 1
     
     print('Loading done.')
-    #np.save(img_train_patients,img_patients)
-    #np.save(img_train_path, imgs)
-    #np.save(img_train_mask_path, imgs_mask)
+    np.save(img_train_patients,img_patients)
+    np.save(img_train_path, imgs)
+    np.save(img_train_mask_path, imgs_mask)
     print('Saving to .npy files done.')
 
 def create_test_data():
@@ -123,7 +123,7 @@ def create_test_data():
 
 def main():
     create_train_data()
-    #create_test_data()
+    create_test_data()
 
 if __name__ == '__main__':
     sys.exit(main())

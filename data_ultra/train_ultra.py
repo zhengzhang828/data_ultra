@@ -8,7 +8,7 @@ from keras.preprocessing.image import flip_axis, random_channel_shift
 from keras.engine.training import slice_X
 from keras_plus import LearningRateDecay
 from u_model import get_unet, IMG_COLS as img_cols, IMG_ROWS as img_rows
-from data import load_train_data, load_test_data, load_patient_num
+from data_ultra import load_train_data, load_test_data, load_patient_num
 from augmentation import random_zoom, elastic_transform, random_rotation
 from utils import save_pickle, load_pickle, count_enum
 
