@@ -19,7 +19,7 @@ preprocess_path = os.path.join(_dir, 'np_data_p')
 #    os.mkdir(preprocess_path)
 
 img_train_path = os.path.join(preprocess_path, 'imgs_train.npy')
-print('img_train_path: ', img_train_path)
+#print('img_train_path: ', img_train_path)
 
 img_train_mask_path = os.path.join(preprocess_path, 'imgs_mask_train.npy')
 img_train_patients = os.path.join(preprocess_path, 'imgs_patients.npy')
