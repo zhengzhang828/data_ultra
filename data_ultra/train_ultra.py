@@ -50,10 +50,12 @@ class Learner(object):
         if os.path.exists(self.__iter_res_dir):
             shutil.rmtree(self.__iter_res_dir)
         os.mkdir(self.__iter_res_dir)
-
+    
+    @classmethod
     def norm_mask(cls, mask_array):
         mask_array = mask_array.astype('float32')
         mask_array /= 255.0
+        print ("Norm mask has executed")
         return mask_array
 
     def train_and_predict(self, pretrained_path=None, split_random=True):
@@ -64,18 +66,27 @@ class Learner(object):
         imgs_train, imgs_mask_train = load_train_data()
         #imgs_train size: (120, 1, 420, 580)
         #imgs_mask_train size: (120, 1, 420, 580)
-        CV_IMWRITE_WEBP_QUALITY = 100
-        print ('imgs_train one image: ', imgs_train[0][0])
-        print ('imgs_train one image shape: ',imgs_train[0].shape, CV_IMWRITE_WEBP_QUALITY)
-        print ('img_sample', self.img_sample)
-        cv2.imwrite(os.path.join(self.img_sample, 'imgs_train_1.jpg'), imgs_train[0])
 
-        print ('img file saved')
-        imgs_train = preprocess(imgs_mask_train)
+        j = 5
+        cv2.imwrite(os.path.join(self.img_sample, 'imgs_train_1.jpg'), imgs_train[j][0])
+        cv2.imwrite(os.path.join(self.img_sample, 'imgs_mask_train_1.jpg'), imgs_mask_train[j][0])
+
+        imgs_mask_norm = imgs_train[j][0].astype('float32')
+        cv2.imwrite(os.path.join(self.img_sample, 'imgs_float32_train_1.jpg'), imgs_mask_norm)
+
+        imgs_mask_norm /= 255.0
+        cv2.imwrite(os.path.join(self.img_sample, 'imgs_255_float32_train_1.jpg'), imgs_mask_norm)
+
+        imgs_train = preprocess(imgs_train)
+        cv2.imwrite(os.path.join(self.img_sample, 'imgs_preprocess_train_1.jpg'), imgs_train[j][0])
         #imgs_train preprocess size: (120, 1, 80, 112)
         
+        imgs_mask_train = preprocess(imgs_mask_train)
+        cv2.imwrite(os.path.join(self.img_sample, 'imgs_process_mask_train_1.jpg'), imgs_mask_train[j][0])
+
         imgs_mask_train = self.norm_mask(imgs_mask_train)
         #imgs_mask_train norm_mask size: (120, 1, 420, 580)
+        cv2.imwrite(os.path.join(self.img_sample, 'imgs_mask_norm_train_1.jpg'), imgs_mask_train[j][0])
        
         
 
