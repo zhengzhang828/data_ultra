@@ -1,4 +1,4 @@
-from __future__ import print_function
+﻿from __future__ import print_function
 from optparse import OptionParser
 import cv2, sys, os, shutil, random
 import numpy as np
@@ -35,6 +35,8 @@ class Learner(object):
     meanstd_path = os.path.join(res_dir, 'meanstd.dump')
     valid_data_path = os.path.join(res_dir, 'valid.npy')
     tensorboard_dir = os.path.join(res_dir, 'tb')
+
+    img_sample = os.path.join(_dir, 'IMGsample')
     
     def __init__(self, model_func, validation_split):
         self.model_func = model_func
@@ -192,6 +194,9 @@ class Learner(object):
     
         x_train = np.array(x_train)
         y_train = np.array(y_train)
+
+        print ('x_trian: ', x_train.shape)
+        
         return x_train, y_train
         
     def fit(self, x_train, y_train, x_valid, y_valid, pretrained_path):
@@ -242,10 +247,11 @@ class Learner(object):
         #augmentation
         x_train, y_train = self.augmentation(x_train, y_train)
         #fit
+        
         model = self.fit(x_train, y_train, x_valid, y_valid, pretrained_path)
         #test
         self.test(model)
-
+        
 
 def main():
     parser = OptionParser()
