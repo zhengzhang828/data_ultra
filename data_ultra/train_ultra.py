@@ -191,10 +191,10 @@ class Learner(object):
 
     def get_object_existance(self, mask_array):
         
-        print ('maks shape: ', mask_array.shape)
-        print ('mask_array[0, 0]: ', mask_array[0, 0])
-        print ('mask array 1st: ', mask_array[0])
-        print ('mask array 2nd: ', mask_array[1])
+        #print ('maks shape: ', mask_array.shape)
+        #print ('mask_array[0, 0]: ', mask_array[0, 0])
+        #print ('mask array 1st: ', mask_array[0])
+        #print ('mask array 2nd: ', mask_array[1])
         
         a_rray = [int(np.sum(mask_array[i, 0])> 0) for i in xrange(len(mask_array))]
         return np.array(a_rray)
@@ -231,9 +231,41 @@ class Learner(object):
 
         return
 
-        
+    def test(self, model, batch_size=256):
+        print('Loading and pre-processing test data')
+        imgs_test = load_test_data()
+        imgs_test = preprocess(imgs_test)
+        imgs_test = self.standartize(imgs_test, to_float=True)
+
+        return
 
     def train_and_predict(self, pretrained_path=None, split_random=True):
+        self._dir_init()
+        print('Loading and preprocessing and standarize train data...')
+        imgs_train, imgs_mask_train = load_train_data()
+        
+        imgs_train = preprocess(imgs_train)
+
+        imgs_mask_train = preprocess(imgs_mask_train)
+        
+        imgs_mask_train = self.norm_mask(imgs_mask_train)
+
+        split_func = split_random and self.split_train_and_valid or self.split_train_and_valid_by_patient
+        (x_train, y_train), (x_valid, y_valid) = split_func(imgs_train, imgs_mask_train,
+                                                        validation_split=self.validation_split)
+        self._init_mean_std(x_train)
+        x_train = self.standartize(x_train, True)
+        x_valid = self.standartize(x_valid, True)
+        #augmentation
+        x_train, y_train = self.augmentation(x_train, y_train)
+        #fit
+        
+        model = self.fit(x_train, y_train, x_valid, y_valid, pretrained_path)
+        #test
+        #self.test(model)
+
+        
+    def train_and_predict_J(self, pretrained_path=None, split_random=True):
         #check folder if not exist create folder
         self._dir_init() 
 
@@ -278,7 +310,8 @@ class Learner(object):
         
         #data augmentation
         x_train, y_train = self.augmentation(x_train, y_train)
-        self.fit(x_train, y_train, x_valid, y_valid, pretrained_path)
+        model = self.fit(x_train, y_train, x_valid, y_valid, pretrained_path)
+        print ('model trained')
 
 
 
