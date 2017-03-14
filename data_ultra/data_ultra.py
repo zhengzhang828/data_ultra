@@ -11,8 +11,8 @@ _dir = os.path.join(os.path.realpath(os.path.dirname(__file__)), '')
 data_path = os.path.join(_dir, '')
 
 #create folder for the train and test files
-preprocess_path_p = os.path.join(_dir, 'np_data_p')
 preprocess_path = os.path.join(_dir, 'np_data_p')
+preprocess_path_o = os.path.join(_dir, 'np_data')
 #if os.path.exists(preprocess_path):
 #    shutil.rmtree(preprocess_path)
 #    os.mkdir(preprocess_path)

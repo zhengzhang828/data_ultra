@@ -228,18 +228,35 @@ class Learner(object):
 
         self.__pretrain_model_load(model, pretrained_path)
         
+        model.fit(
+                   x_train, [y_train, y_train_2], 
+                   validation_data=(x_valid, [y_valid, y_valid_2]),
+                   #batch_size is number of training examples in forward/backward pass
+                   #epoch is one forward pass and one backward pass of all the training examples
+                   batch_size=10, nb_epoch=5,
+                   verbose=1, shuffle=True,
+                   callbacks=[model_save_best, model_checkpoint, early_s]
+                   )
 
-        return
+        return model
 
     def test(self, model, batch_size=256):
         print('Loading and pre-processing test data')
         imgs_test = load_test_data()
+        print ('imgs_test shape: ', imgs_test.shape)
         imgs_test = preprocess(imgs_test)
         imgs_test = self.standartize(imgs_test, to_float=True)
 
-        return
+        print ('Loading best saved weights...')
+        model.load_weights(self.best_weight_path)
 
-    def train_and_predict(self, pretrained_path=None, split_random=True):
+        print ('predicting masks on test data and saving...')
+        imgs_mask_test = model.predict(imgs_test, batch_size=batch_size, verbose=1)
+        return
+        #np.save(self.test_mask_res, imgs_mask_test[0])
+        #np.save(self.test_mask_exist_res, imgs_mask_test[1])
+        
+    def train_and_predict_o(self, pretrained_path=None, split_random=True):
         self._dir_init()
         print('Loading and preprocessing and standarize train data...')
         imgs_train, imgs_mask_train = load_train_data()
@@ -265,7 +282,7 @@ class Learner(object):
         #self.test(model)
 
         
-    def train_and_predict_J(self, pretrained_path=None, split_random=True):
+    def train_and_predict(self, pretrained_path=None, split_random=True):
         #check folder if not exist create folder
         self._dir_init() 
 
@@ -273,6 +290,7 @@ class Learner(object):
         imgs_train, imgs_mask_train = load_train_data()
         #imgs_train size: (120, 1, 420, 580)
         #imgs_mask_train size: (120, 1, 420, 580)
+        print ("imgs_train shape",imgs_train.shape)
 
         j = 5
         #cv2.imwrite(os.path.join(self.img_sample, 'imgs_train_1.jpg'), imgs_train[j][0])
@@ -311,7 +329,7 @@ class Learner(object):
         #data augmentation
         x_train, y_train = self.augmentation(x_train, y_train)
         model = self.fit(x_train, y_train, x_valid, y_valid, pretrained_path)
-        print ('model trained')
+        self.test(model)
 
 
 
