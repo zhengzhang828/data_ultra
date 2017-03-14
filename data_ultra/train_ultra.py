@@ -40,8 +40,11 @@ class Learner(object):
         
         self.model_func = model_func
         self.validation_split = validation_split
+        #Specify the weights files and folder
         self.__iter_res_dir = os.path.join(self.res_dir, 'res_iter')
         self.__iter_res_file = os.path.join(self.__iter_res_dir, '{epoch:02d}-{val_loss:.4f}.unet.hdf5')
+        #self.__iter_res_file = os.path.join(self.__iter_res_dir, '{val_loss:.4f}.unet.hdf5')
+        #print ("__iter_res_dir: ", self.__iter_res_dir)
 
     def _dir_init(self):
         #Initialize the result folder, if doesn't exist, create res_dir folder
@@ -191,10 +194,10 @@ class Learner(object):
 
     def get_object_existance(self, mask_array):
         
-        print ('maks shape: ', mask_array.shape)
-        print ('mask_array[0, 0]: ', mask_array[0, 0])
-        print ('mask array 1st: ', mask_array[0])
-        print ('mask array 2nd: ', mask_array[1])
+        #print ('maks shape: ', mask_array.shape)
+        #print ('mask_array[0, 0]: ', mask_array[0, 0])
+        #print ('mask array 1st: ', mask_array[0])
+        #print ('mask array 2nd: ', mask_array[1])
         
         a_rray = [int(np.sum(mask_array[i, 0])> 0) for i in xrange(len(mask_array))]
         return np.array(a_rray)
@@ -212,24 +215,37 @@ class Learner(object):
         y_train_2 = self.get_object_existance(y_train)
         y_valid_2 = self.get_object_existance(y_valid)
 
-        print ('y train 2 shape: ', y_train_2.shape)
+        #print ('y train 2 shape: ', y_train_2.shape)
         
         #load model
         optimizer = Adam(lr=0.0045)
         model = self.model_func(optimizer)
 
         #checkpoints
+        print ('problems 1...')
         model_checkpoint = ModelCheckpoint(self.__iter_res_dir, monitor='val_loss')
 
+        print ('problems 2...')
         model_save_best = ModelCheckpoint(self.best_weight_path, monitor='val_loss', save_best_only=True)
 
+        print ('problems 3...')
         early_s = EarlyStopping(monitor='val_loss', patience=5, verbose=1)
         learning_rate_adapt = LearningRateDecay(0.9, every_n=2, verbose=1)
 
         self.__pretrain_model_load(model, pretrained_path)
         
+        batch_size_p = 20
+        model.fit(
+            
+            x_train, [y_train, y_train_2],
+            validation_data = (x_valid, [y_valid, y_valid_2]),
+            batch_size = batch_size_p, nb_epoch=50,
+            verbose=1, shuffle = True,
+            callbacks=[model_save_best, model_checkpoint, early_s]
 
-        return
+            )
+
+        return model
 
         
 
@@ -278,7 +294,9 @@ class Learner(object):
         
         #data augmentation
         x_train, y_train = self.augmentation(x_train, y_train)
+        print ('execute fit...')
         self.fit(x_train, y_train, x_valid, y_valid, pretrained_path)
+        print ('successfully trained the network')
 
 
 
