@@ -40,11 +40,8 @@ class Learner(object):
         
         self.model_func = model_func
         self.validation_split = validation_split
-        #Specify the weights files and folder
         self.__iter_res_dir = os.path.join(self.res_dir, 'res_iter')
         self.__iter_res_file = os.path.join(self.__iter_res_dir, '{epoch:02d}-{val_loss:.4f}.unet.hdf5')
-        #self.__iter_res_file = os.path.join(self.__iter_res_dir, '{val_loss:.4f}.unet.hdf5')
-        #print ("__iter_res_dir: ", self.__iter_res_dir)
 
     def _dir_init(self):
         #Initialize the result folder, if doesn't exist, create res_dir folder
@@ -215,40 +212,76 @@ class Learner(object):
         y_train_2 = self.get_object_existance(y_train)
         y_valid_2 = self.get_object_existance(y_valid)
 
-        #print ('y train 2 shape: ', y_train_2.shape)
+        print ('y train 2 shape: ', y_train_2.shape)
         
         #load model
         optimizer = Adam(lr=0.0045)
         model = self.model_func(optimizer)
 
         #checkpoints
-        print ('problems 1...')
         model_checkpoint = ModelCheckpoint(self.__iter_res_dir, monitor='val_loss')
 
-        print ('problems 2...')
         model_save_best = ModelCheckpoint(self.best_weight_path, monitor='val_loss', save_best_only=True)
 
-        print ('problems 3...')
         early_s = EarlyStopping(monitor='val_loss', patience=5, verbose=1)
         learning_rate_adapt = LearningRateDecay(0.9, every_n=2, verbose=1)
 
         self.__pretrain_model_load(model, pretrained_path)
         
-        batch_size_p = 20
         model.fit(
-            
-            x_train, [y_train, y_train_2],
-            validation_data = (x_valid, [y_valid, y_valid_2]),
-            batch_size = batch_size_p, nb_epoch=50,
-            verbose=1, shuffle = True,
-            callbacks=[model_save_best, model_checkpoint, early_s]
-
-            )
+                   x_train, [y_train, y_train_2], 
+                   validation_data=(x_valid, [y_valid, y_valid_2]),
+                   #batch_size is number of training examples in forward/backward pass
+                   #epoch is one forward pass and one backward pass of all the training examples
+                   batch_size=10, nb_epoch=5,
+                   verbose=1, shuffle=True,
+                   callbacks=[model_save_best, model_checkpoint, early_s]
+                   )
 
         return model
 
-        
+    def test(self, model, batch_size=256):
+        print('Loading and pre-processing test data')
+        imgs_test = load_test_data()
+        print ('imgs_test shape: ', imgs_test.shape)
+        imgs_test = preprocess(imgs_test)
+        imgs_test = self.standartize(imgs_test, to_float=True)
 
+        print ('Loading best saved weights...')
+        model.load_weights(self.best_weight_path)
+
+        print ('predicting masks on test data and saving...')
+        imgs_mask_test = model.predict(imgs_test, batch_size=batch_size, verbose=1)
+        return
+        #np.save(self.test_mask_res, imgs_mask_test[0])
+        #np.save(self.test_mask_exist_res, imgs_mask_test[1])
+        
+    def train_and_predict_o(self, pretrained_path=None, split_random=True):
+        self._dir_init()
+        print('Loading and preprocessing and standarize train data...')
+        imgs_train, imgs_mask_train = load_train_data()
+        
+        imgs_train = preprocess(imgs_train)
+
+        imgs_mask_train = preprocess(imgs_mask_train)
+        
+        imgs_mask_train = self.norm_mask(imgs_mask_train)
+
+        split_func = split_random and self.split_train_and_valid or self.split_train_and_valid_by_patient
+        (x_train, y_train), (x_valid, y_valid) = split_func(imgs_train, imgs_mask_train,
+                                                        validation_split=self.validation_split)
+        self._init_mean_std(x_train)
+        x_train = self.standartize(x_train, True)
+        x_valid = self.standartize(x_valid, True)
+        #augmentation
+        x_train, y_train = self.augmentation(x_train, y_train)
+        #fit
+        
+        model = self.fit(x_train, y_train, x_valid, y_valid, pretrained_path)
+        #test
+        #self.test(model)
+
+        
     def train_and_predict(self, pretrained_path=None, split_random=True):
         #check folder if not exist create folder
         self._dir_init() 
@@ -257,6 +290,7 @@ class Learner(object):
         imgs_train, imgs_mask_train = load_train_data()
         #imgs_train size: (120, 1, 420, 580)
         #imgs_mask_train size: (120, 1, 420, 580)
+        print ("imgs_train shape",imgs_train.shape)
 
         j = 5
         #cv2.imwrite(os.path.join(self.img_sample, 'imgs_train_1.jpg'), imgs_train[j][0])
@@ -294,9 +328,8 @@ class Learner(object):
         
         #data augmentation
         x_train, y_train = self.augmentation(x_train, y_train)
-        print ('execute fit...')
-        self.fit(x_train, y_train, x_valid, y_valid, pretrained_path)
-        print ('successfully trained the network')
+        model = self.fit(x_train, y_train, x_valid, y_valid, pretrained_path)
+        self.test(model)
 
 
 
